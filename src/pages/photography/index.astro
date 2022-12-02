@@ -1,0 +1,19 @@
+---
+import MainLayout from "../../components/layouts/MainLayout.astro"
+import SEOLayout from "../../components/layouts/SEOLayout.astro";
+import Header from '../../components/sections/CollectionHeader.svelte';
+import List from "../../components/sections/CollectionList.svelte";
+
+import { client } from "../../assets/scripts/utils/api/sanityClient";
+import { allPostsCategory } from "../../assets/scripts/utils/api/api";
+
+const allPostsData = await client.fetch(allPostsCategory('photography', 'project'));
+console.log(allPostsData);
+---
+
+<SEOLayout title="Photography | Portfolio Donaël Walter | Creative Development, Photography, Design" description="Portfolio of Donaël WALTER, French Creative Developper, Interactive Designer, Hobbyist Photographer" lang="en">
+	<MainLayout>
+		<Header pageName={"Photography"} subTitle={"Screenshot of My personal Life"} client:load/>
+		<List Posts={allPostsData} client:load/>
+	</MainLayout>
+</SEOLayout>

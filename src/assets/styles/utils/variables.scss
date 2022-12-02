@@ -1,0 +1,38 @@
+/**
+* VARIABLES FOR ALL THE SITE
+**/
+
+/* Create colors variables */ 
+$brands-primary: (
+    "background": #060606,
+    "text": #FFFFFF,
+    "accent": crimson
+);
+
+$brands-secondary: (
+    "error": red,
+    "success": green,
+    "warning": orange,
+    "neutral": #222222
+);
+
+// Create breakpoints variables
+$breakpoints:(
+  "phone-small": 320px,
+  "tablet": 768px,
+  "tablet-wide": 1024px,
+  "desktop": 1440px,
+  "desktop-wide": 1920px,
+);
+
+// Create fonts sizes variables 
+// Create spacing sizes variables
+// Create z-index levels possibilities
+// Z-Indexes
+$z-indexes: (
+    "content",
+    "menu",
+    "header",
+    "modal",
+    "loader"
+)

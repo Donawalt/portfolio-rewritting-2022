@@ -1,0 +1,41 @@
+---
+import SEOLayout from "../../components/layouts/SEOLayout.astro";
+
+import { client } from "../../assets/scripts/utils/api/sanityClient";
+import { allPostsCategory } from "../../assets/scripts/utils/api/api";
+import ArticleLayout from "../../components/layouts/ArticleLayout.astro";
+import SliceManager from "../../components/utils/SliceManager.svelte";
+
+export async function getStaticPaths() {
+  const allPosts = await client.fetch(
+    allPostsCategory("design", "project", true)
+  );
+
+  return allPosts.map((post, index) => {
+    let nextPost = allPosts[index + 1] ? allPosts[index + 1] : allPosts[0];
+    
+    return {
+      params: { project: post.slug.current },
+      props: { post, nextPost },
+    };
+  });
+}
+
+const {slug} = Astro.params;
+const {post, nextPost} = Astro.props;
+console.log("Post: " + post, "NextPost: " + nextPost);
+---
+
+<SEOLayout
+  title="Photography | Portfolio Donaël Walter | Creative Development, Photography, Design"
+  description="Portfolio of Donaël WALTER, French Creative Developper, Interactive Designer, Hobbyist Photographer"
+  lang="en"
+>
+    <ArticleLayout post={post} nextPost={nextPost}>
+      <SliceManager Slices={post.slices} />
+    </ArticleLayout>
+</SEOLayout>
+
+<script define:vars={{ post, nextPost }}>
+ console.log("Post: ", post, '<br/>' ,"NextPost: ", nextPost);
+</script>

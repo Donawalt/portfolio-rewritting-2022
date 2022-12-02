@@ -1,0 +1,23 @@
+---
+import MainLayout from "./MainLayout.astro";
+
+import Header from "../sections/ProjectHeader.svelte";
+import Information from "../sections/ProjectInformation.svelte";
+
+import ProjectFooter from "../sections/ProjectFooter.svelte";
+
+const { post, nextPost } = Astro.props;
+console.log(post, nextPost)
+---
+
+<MainLayout>
+  <Header SubTitle={post.subtitle} Title={post.name} Cover={post.cover} client:load/>
+  <Information Skills={post.skills} Introduction={post.introduction} client:load/>
+  <article><slot /></article>
+  <ProjectFooter
+    Title={nextPost ? nextPost.name : "No more projects"}
+    Slug={nextPost ? '/' + nextPost.category + "/" + nextPost.slug.current : "/"}
+    Cover={nextPost ? nextPost.cover : null}
+    client:load
+  />
+</MainLayout>

@@ -1,0 +1,104 @@
+---
+import MainLayout from "../components/layouts/MainLayout.astro";
+import SEOLayout from "../components/layouts/SEOLayout.astro";
+import ListSection from "../components/sections/ListSection.svelte";
+
+import { client } from "../assets/scripts/utils/api/sanityClient";
+import { allIndexPosts } from "../assets/scripts/utils/api/api";
+import IndexLayout from "../components/layouts/IndexLayout.astro";
+
+const posts = await client.fetch(allIndexPosts);
+const devPosts = posts
+  .filter((x: { category: string }) => x.category == "development")
+  .slice(0, 5);
+const desPosts = posts
+  .filter((x: { category: string }) => x.category == "design")
+  .slice(0, 5);
+const photoPosts = posts
+  .filter((x: { category: string }) => x.category == "photography")
+  .slice(0, 5);
+---
+
+<SEOLayout
+  title="Index | Portfolio Donaël Walter | Creative Development, Photography, Design"
+  description="Portfolio of Donaël WALTER, French Creative Developper, Interactive Designer, Hobbyist Photographer"
+  lang="en"
+>
+  <IndexLayout>
+    <ListSection
+      desPosts={desPosts}
+      devPosts={devPosts}
+      photoPosts={photoPosts}
+      picture={null}
+      posts={posts}
+
+      client:load
+    />
+    <footer>
+      <ul>
+        <li>
+          <a href="https://www.instagram.com/walt_dona/" target="_blank"
+            >Instagram</a
+          >
+        </li>
+        <span>⁕</span>
+        <li>
+          <a href="https://github.com/Donawalt/" target="_blank">Github</a>
+        </li>
+        <span>⁕</span>
+        <li>
+          <a href="https://dribbble.com/donaelwalter" target="_blank">Dribble</a
+          >
+        </li>
+      </ul>
+      <a href="mailto:contact@donaelwalter.com" target="_blank" class="contact"
+        >contact@donaelwalter.com</a
+      >
+    </footer>
+  </IndexLayout>
+</SEOLayout>
+
+<style lang="scss" is:global>
+  main{
+    footer {
+      position: fixed;
+      bottom: 32px;
+      color: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      a {
+        text-decoration: none;
+      }
+      ul {
+        display: flex;
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+        margin-left: 32px;
+        span {
+          margin-left: 8px;
+          margin-right: 8px;
+        }
+        li {
+          text-decoration: none;
+        }
+      }
+      .contact {
+        text-align: right;
+        margin-right: 32px;
+      }
+      @media screen and (max-width: 425px) {
+        grid-template-rows: auto auto;
+        grid-template-columns: initial;
+        .contact,
+        ul {
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          margin: 0;
+        }
+      }
+    }
+  }
+</style>
