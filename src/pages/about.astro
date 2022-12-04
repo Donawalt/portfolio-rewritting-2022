@@ -364,6 +364,7 @@ import Street2Picture from "../assets/pictures/about/street2.jpg";
 </SEOLayout>
 
 <style lang="scss">
+  @import '../assets/styles/utils/variables';
   .d-about {
     &-header {
       width: 100%;
@@ -433,11 +434,16 @@ import Street2Picture from "../assets/pictures/about/street2.jpg";
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       margin-bottom: 200px;
+      @media screen and (max-width: map-get($breakpoints, 'tablet')) {
+          display: block;
+        }
       div,
       p,
       picture {
         grid-column: 2 /4;
       }
+
+
       picture {
         display: block;
         height: fit-content;
