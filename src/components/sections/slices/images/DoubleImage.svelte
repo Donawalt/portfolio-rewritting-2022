@@ -22,6 +22,8 @@
                 @media screen and (max-width: 425px){
                         grid-column: initial;
                         margin-left: -16px;
+                        border-top-left-radius: 0px;
+                        border-bottom-left-radius: 0px;
                 }
             }
             &:nth-child(2){
@@ -31,6 +33,9 @@
                         grid-column: initial;
                         margin-left: 16px;
                         margin-top: 0%;
+                        border-radius: 16px;
+                        border-top-right-radius: 0px;
+                        border-bottom-right-radius: 0px;
                 }
             }
             display:block;
@@ -51,6 +56,9 @@
                         grid-column: initial;
                         margin-left: -16px;
                         margin-top: 0%;
+                        border-radius: 16px;
+                        border-top-left-radius: 0px;
+                        border-bottom-left-radius: 0px;
                     }
                 }
                 &:nth-child(2){
@@ -59,6 +67,9 @@
                     @media screen and (max-width: 425px){
                         grid-column: initial;
                         margin-left: 16px;
+                        border-radius: 16px;
+                        border-top-right-radius: 0px;
+                        border-bottom-right-radius: 0px;
                     }
                 }
             }
