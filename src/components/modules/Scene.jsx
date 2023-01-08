@@ -5,11 +5,16 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, PerspectiveCamera, Text, Html } from "@react-three/drei";
 import eventBus from "../../assets/scripts/utils/eventBus";
 import animateTitle from "../../assets/scripts/animations/pages/index/title";
+import useMediaQuery from "../../assets/scripts/hooks/useMediaQuery";
 
 import VideoOne from "../../assets/videos/video_one.mp4";
 import VideoTwo from "../../assets/videos/video_two.mp4";
 import VideoThree from "../../assets/videos/video_three.mp4";
-import { Suspense } from "react";
+
+const degreesToRadians = (degrees) => {
+  var pi = Math.PI;
+  return degrees * (pi / 180);
+};
 
 const Tooltip = (props) => {
   const tooltip = useRef();
@@ -137,6 +142,18 @@ const BlenderScene = (props) => {
 
   const [roomVideo, setRoomVideo] = React.useState(0);
 
+  // Mobile part
+  const objects = [{}, {}, {}];
+  const radius = 10;
+  const step = (2 * Math.PI) / objects.length;
+  let angle = 0;
+
+  for (const object of objects) {
+    object.position = [radius * Math.cos(angle), 0, radius * Math.sin(angle)];
+    object.angle = angle;
+    angle += step;
+  }
+
   React.useEffect(() => {
     videoOne.play();
     videoTwo.play();
@@ -149,6 +166,14 @@ const BlenderScene = (props) => {
       setRoomVideo(data);
     });
   }, []);
+
+  React.useEffect(() => {
+    if (props.isMobile) {
+      setRoomVideo(1);
+    } else {
+      setRoomVideo(0);
+    }
+  }, [props.isMobile]);
 
   const moveCamera = ({ location, targetLocation, rotation }) => {
     const animation = (camera) => {
@@ -169,478 +194,484 @@ const BlenderScene = (props) => {
 
   return (
     <group {...props} dispose={null}>
-      <group name="TV" position={[-0.02, 0, -0.02]}>
-        <group name="Antenne001" position={[1.38, 1.01, -0.27]}>
-          <mesh
-            name="Cylinder013"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder013.geometry}
-            material={materials["tvFrame.002"]}
-          />
-          <mesh
-            name="Cylinder013_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder013_1.geometry}
-            material={materials["tvBody.002"]}
-          />
-        </group>
-        <group name="Body001" position={[0.02, 0, 0.02]} scale={[1.5, 1, 1]}>
-          <mesh
-            name="Cube005"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005.geometry}
-            material={materials["tvBody.003"]}
-          />
-          <mesh
-            name="Cube005_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_1.geometry}
-            material={materials["tvFrame.003"]}
-          />
-          <mesh
-            name="Cube005_2"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_2.geometry}
-            material={materials["tvScreenFrame.003"]}
-          />
-          <mesh
-            name="Cube005_3"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_3.geometry}
-            material={nodes.Cube005_3.material}
-          />
-        </group>
+      <group
+        rotation={!props.isMobile ? [0, 0, 0] : [0, degreesToRadians(-85), 0]}
+        position={!props.isMobile ? [0, 0, 0] : [-0.8, 0, 0]}
+      >
         <group
-          name="Cursor001"
-          position={[1.08, 0.27, 1.03]}
-          rotation={[Math.PI / 2, Math.PI / 2, 0]}
-          scale={[0.76, 0.1, 0.76]}
+          name="TV"
+          position={!props.isMobile ? [-0.02, 0, -0.02] : objects[0].position}
+          rotation={props.isMobile ? [0, degreesToRadians(90), 0] : [0, 0, 0]}
         >
-          <mesh
-            name="Cylinder012"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012.geometry}
-            material={materials["tvBody.002"]}
-          />
-          <mesh
-            name="Cylinder012_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012_1.geometry}
-            material={materials["tvFrame.002"]}
-          />
-        </group>
-        <group
-          name="Cursor2001"
-          position={[1.07, 0.67, 1.03]}
-          rotation={[Math.PI / 2, Math.PI / 2, 0]}
-          scale={[0.76, 0.1, 0.76]}
-        >
-          <mesh
-            name="Cylinder012"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012.geometry}
-            material={materials["tvBody.002"]}
-          />
-          <mesh
-            name="Cylinder012_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012_1.geometry}
-            material={materials["tvFrame.002"]}
-          />
-        </group>
-        <mesh
-          name="Power001"
-          castShadow
-          receiveShadow
-          geometry={nodes.Power001.geometry}
-          material={materials["tvFrame.002"]}
-          position={[1.35, -0.01, 1.01]}
-          rotation={[Math.PI / 2, Math.PI / 2, 0]}
-        />
-        <mesh
-          name="Screen001"
-          castShadow
-          receiveShadow
-          geometry={nodes.Screen001.geometry}
-          // material={materials["tvScreen.002"]}
-          position={[0.02, 0, 0.02]}
-          scale={[1.5, 1, 1]}
-        >
-          <meshBasicMaterial toneMapped={false}>
-            <videoTexture
-              attach={"map"}
-              args={[videoOne]}
-              encoding={THREE.sRGBEncoding}
-              rotation={-1.5708}
-              repeat={[-2.5, 2.5]}
-              offset={[1.025, -0]}
-              center={[0.5, 0.5]}
+          <group name="Antenne001" position={[1.38, 1.01, -0.27]}>
+            <mesh
+              name="Cylinder013"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder013.geometry}
+              material={materials["tvFrame.002"]}
             />
-          </meshBasicMaterial>
-        </mesh>
-        <mesh
-          name="Signature001"
-          castShadow
-          receiveShadow
-          geometry={nodes.Signature001.geometry}
-          material={materials["mainBrand.001"]}
-          position={[1.26, 1, 0.92]}
-        />
-        <Tooltip
-          text="Photography"
-          video={1}
-          targetLocation={[0.02, 0, 0.02]}
-          onClick={() => {
-            var getUrl = window.location;
-            var baseUrl =
-              getUrl.protocol +
-              "//" +
-              getUrl.host +
-              "/" +
-              getUrl.pathname.split("/")[1];
-
-            moveCamera({
-              location: () => {
-                window.location.href = baseUrl + "photography/";
-              },
-              targetLocation: [-0.02, 0, -0.02],
-              rotation: null,
-            });
-          }}
-        />
-      </group>
-      <group name="TV001" position={[5.79, 0, 0.25]}>
-        <group
-          name="Antenne002"
-          position={[1.39, 1.01, 0.43]}
-          rotation={[0, -0.38, 0]}
-        >
-          <mesh
-            name="Cylinder013"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder013.geometry}
-            material={materials["tvFrame.002"]}
-          />
-          <mesh
-            name="Cylinder013_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder013_1.geometry}
-            material={materials["tvBody.002"]}
-          />
-        </group>
-        <group
-          name="Body002"
-          position={[0.03, 0, 0.19]}
-          rotation={[0, -0.38, 0]}
-          scale={[1.5, 1, 1]}
-        >
-          <mesh
-            name="Cube005"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005.geometry}
-            material={materials["tvBody.003"]}
-          />
-          <mesh
-            name="Cube005_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_1.geometry}
-            material={materials["tvFrame.003"]}
-          />
-          <mesh
-            name="Cube005_2"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_2.geometry}
-            material={materials["tvScreenFrame.003"]}
-          />
-          <mesh
-            name="Cube005_3"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_3.geometry}
-            material={nodes.Cube005_3.material}
-          />
-        </group>
-        <group
-          name="Cursor002"
-          position={[0.63, 0.27, 1.53]}
-          rotation={[0, 1.19, Math.PI / 2]}
-          scale={[0.76, 0.1, 0.76]}
-        >
-          <mesh
-            name="Cylinder012"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012.geometry}
-            material={materials["tvBody.002"]}
-          />
-          <mesh
-            name="Cylinder012_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012_1.geometry}
-            material={materials["tvFrame.002"]}
-          />
-        </group>
-        <group
-          name="Cursor2002"
-          position={[0.62, 0.67, 1.52]}
-          rotation={[0, 1.19, Math.PI / 2]}
-          scale={[0.76, 0.1, 0.76]}
-        >
-          <mesh
-            name="Cylinder012"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012.geometry}
-            material={materials["tvBody.002"]}
-          />
-          <mesh
-            name="Cylinder012_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012_1.geometry}
-            material={materials["tvFrame.002"]}
-          />
-        </group>
-        <mesh
-          name="Power002"
-          castShadow
-          receiveShadow
-          geometry={nodes.Power002.geometry}
-          material={materials["tvFrame.002"]}
-          position={[0.89, -0.01, 1.6]}
-          rotation={[0, 1.19, Math.PI / 2]}
-        />
-        <mesh
-          name="Screen002"
-          castShadow
-          receiveShadow
-          geometry={nodes.Screen002.geometry}
-          // material={materials["tvScreen.002"]}
-          position={[0.03, 0, 0.19]}
-          rotation={[0, -0.38, 0]}
-          scale={[1.5, 1, 1]}
-        >
-          <meshBasicMaterial toneMapped={false}>
-            <videoTexture
-              attach={"map"}
-              args={[videoTwo]}
-              encoding={THREE.sRGBEncoding}
-              rotation={-1.5708}
-              repeat={[-2.5, 2.5]}
-              offset={[1.025, -0]}
-              center={[0.5, 0.5]}
+            <mesh
+              name="Cylinder013_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder013_1.geometry}
+              material={materials["tvBody.002"]}
             />
-          </meshBasicMaterial>
-        </mesh>
-        <mesh
-          name="Signature002"
-          castShadow
-          receiveShadow
-          geometry={nodes.Signature002.geometry}
-          material={materials["mainBrand.001"]}
-          position={[0.84, 1, 1.49]}
-          rotation={[0, -0.38, 0]}
-        />
-        <Tooltip
-          text="Development"
-          video={2}
-          targetLocation={[0.03, 0, 0.19]}
-          onClick={() => {
-            var getUrl = window.location;
-            var baseUrl =
-              getUrl.protocol +
-              "//" +
-              getUrl.host +
-              "/" +
-              getUrl.pathname.split("/")[1];
-
-            moveCamera({
-              location: () => {
-                window.location.href = baseUrl + "development/";
-              },
-              targetLocation: [5.79, 0, 0.25],
-              rotation: null,
-            });
-          }}
-        />
-      </group>
-      <group name="TV002" position={[-6.42, 0, 1.08]}>
-        <group
-          name="Antenne003"
-          position={[1.06, 1.01, -0.78]}
-          rotation={[0, 0.49, 0]}
-        >
-          <mesh
-            name="Cylinder013"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder013.geometry}
-            material={materials["tvFrame.002"]}
-          />
-          <mesh
-            name="Cylinder013_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder013_1.geometry}
-            material={materials["tvBody.002"]}
-          />
-        </group>
-        <group
-          name="Body003"
-          position={[0, 0, 0.11]}
-          rotation={[0, 0.49, 0]}
-          scale={[1.5, 1, 1]}
-        >
-          <mesh
-            name="Cube005"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005.geometry}
-            material={materials["tvBody.003"]}
-          />
-          <mesh
-            name="Cube005_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_1.geometry}
-            material={materials["tvFrame.003"]}
-          />
-          <mesh
-            name="Cube005_2"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_2.geometry}
-            material={materials["tvScreenFrame.003"]}
-          />
-          <mesh
-            name="Cube005_3"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube005_3.geometry}
-            material={nodes.Cube005_3.material}
-          />
-        </group>
-        <group
-          name="Cursor003"
-          position={[1.41, 0.27, 0.51]}
-          rotation={[Math.PI, 1.08, -Math.PI / 2]}
-          scale={[0.76, 0.1, 0.76]}
-        >
-          <mesh
-            name="Cylinder012"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012.geometry}
-            material={materials["tvBody.002"]}
-          />
-          <mesh
-            name="Cylinder012_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012_1.geometry}
-            material={materials["tvFrame.002"]}
-          />
-        </group>
-        <group
-          name="Cursor2003"
-          position={[1.41, 0.67, 0.51]}
-          rotation={[Math.PI, 1.08, -Math.PI / 2]}
-          scale={[0.76, 0.1, 0.76]}
-        >
-          <mesh
-            name="Cylinder012"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012.geometry}
-            material={materials["tvBody.002"]}
-          />
-          <mesh
-            name="Cylinder012_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cylinder012_1.geometry}
-            material={materials["tvFrame.002"]}
-          />
-        </group>
-        <mesh
-          name="Power003"
-          castShadow
-          receiveShadow
-          geometry={nodes.Power003.geometry}
-          material={materials["tvFrame.002"]}
-          position={[1.64, -0.01, 0.35]}
-          rotation={[Math.PI, 1.08, -Math.PI / 2]}
-        />
-        <mesh
-          name="Screen003"
-          castShadow
-          receiveShadow
-          geometry={nodes.Screen003.geometry}
-          // material={materials["tvScreen.002"]}
-          position={[0, 0, 0.11]}
-          rotation={[0, 0.49, 0]}
-          scale={[1.5, 1, 1]}
-        >
-          <meshBasicMaterial toneMapped={false}>
-            <videoTexture
-              attach={"map"}
-              args={[videoThree]}
-              encoding={THREE.sRGBEncoding}
-              rotation={-1.5708}
-              repeat={[-2.5, 2.5]}
-              offset={[1.025, -0]}
-              center={[0.5, 0.5]}
+          </group>
+          <group name="Body001" position={[0.02, 0, 0.02]} scale={[1.5, 1, 1]}>
+            <mesh
+              name="Cube005"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005.geometry}
+              material={materials["tvBody.003"]}
             />
-          </meshBasicMaterial>
-        </mesh>
-        <mesh
-          name="Signature003"
-          castShadow
-          receiveShadow
-          geometry={nodes.Signature003.geometry}
-          material={materials["mainBrand.001"]}
-          position={[1.52, 1, 0.32]}
-          rotation={[0, 0.49, 0]}
-        />
-        <Tooltip
-          text="Design"
-          video={3}
-          targetLocation={[0, 0, 0.11]}
-          onClick={() => {
-            var getUrl = window.location;
-            var baseUrl =
-              getUrl.protocol +
-              "//" +
-              getUrl.host +
-              "/" +
-              getUrl.pathname.split("/")[1];
+            <mesh
+              name="Cube005_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_1.geometry}
+              material={materials["tvFrame.003"]}
+            />
+            <mesh
+              name="Cube005_2"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_2.geometry}
+              material={materials["tvScreenFrame.003"]}
+            />
+            <mesh
+              name="Cube005_3"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_3.geometry}
+              material={nodes.Cube005_3.material}
+            />
+          </group>
+          <group
+            name="Cursor001"
+            position={[1.08, 0.27, 1.03]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+            scale={[0.76, 0.1, 0.76]}
+          >
+            <mesh
+              name="Cylinder012"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012.geometry}
+              material={materials["tvBody.002"]}
+            />
+            <mesh
+              name="Cylinder012_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012_1.geometry}
+              material={materials["tvFrame.002"]}
+            />
+          </group>
+          <group
+            name="Cursor2001"
+            position={[1.07, 0.67, 1.03]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+            scale={[0.76, 0.1, 0.76]}
+          >
+            <mesh
+              name="Cylinder012"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012.geometry}
+              material={materials["tvBody.002"]}
+            />
+            <mesh
+              name="Cylinder012_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012_1.geometry}
+              material={materials["tvFrame.002"]}
+            />
+          </group>
+          <mesh
+            name="Power001"
+            castShadow
+            receiveShadow
+            geometry={nodes.Power001.geometry}
+            material={materials["tvFrame.002"]}
+            position={[1.35, -0.01, 1.01]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+          />
+          <mesh
+            name="Screen001"
+            castShadow
+            receiveShadow
+            geometry={nodes.Screen001.geometry}
+            // material={materials["tvScreen.002"]}
+            position={[0.02, 0, 0.02]}
+            scale={[1.5, 1, 1]}
+          >
+            <meshBasicMaterial toneMapped={false}>
+              <videoTexture
+                attach={"map"}
+                args={[videoOne]}
+                encoding={THREE.sRGBEncoding}
+                rotation={-1.5708}
+                repeat={[-2.5, 2.5]}
+                offset={[1.025, -0]}
+                center={[0.5, 0.5]}
+              />
+            </meshBasicMaterial>
+          </mesh>
+          <mesh
+            name="Signature001"
+            castShadow
+            receiveShadow
+            geometry={nodes.Signature001.geometry}
+            material={materials["mainBrand.001"]}
+            position={[1.26, 1, 0.92]}
+          />
+          {!props.isMobile && (
+            <Tooltip
+              text="Photography"
+              video={1}
+              targetLocation={[0.02, 0, 0.02]}
+              onClick={() => {
+                var getUrl = window.location;
+                var baseUrl =
+                  getUrl.protocol +
+                  "//" +
+                  getUrl.host +
+                  "/" +
+                  getUrl.pathname.split("/")[1];
 
-            moveCamera({
-              location: () => {
-                window.location.href = baseUrl + "design/";
-              },
-              targetLocation: [-6.42, 0, 1.08],
-              rotation: null,
-            });
-          }}
-        />
+                moveCamera({
+                  location: () => {
+                    window.location.href = baseUrl + "photography/";
+                  },
+                  targetLocation: [-0.02, 0, -0.02],
+                  rotation: null,
+                });
+              }}
+            />
+          )}
+        </group>
+        <group
+          name="TV001"
+          position={!props.isMobile ? [5.79, 0, 0.25] : objects[1].position}
+          rotation={
+            !props.isMobile ? [0, -0.38, 0] : [0, degreesToRadians(-35), 0]
+          }
+        >
+          <group name="Antenne002" position={[1.39, 1.01, 0.43]}>
+            <mesh
+              name="Cylinder013"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder013.geometry}
+              material={materials["tvFrame.002"]}
+            />
+            <mesh
+              name="Cylinder013_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder013_1.geometry}
+              material={materials["tvBody.002"]}
+            />
+          </group>
+          <group name="Body002" position={[0.03, 0, 0.19]} scale={[1.5, 1, 1]}>
+            <mesh
+              name="Cube005"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005.geometry}
+              material={materials["tvBody.003"]}
+            />
+            <mesh
+              name="Cube005_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_1.geometry}
+              material={materials["tvFrame.003"]}
+            />
+            <mesh
+              name="Cube005_2"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_2.geometry}
+              material={materials["tvScreenFrame.003"]}
+            />
+            <mesh
+              name="Cube005_3"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_3.geometry}
+              material={nodes.Cube005_3.material}
+            />
+          </group>
+          <group
+            name="Cursor002"
+            position={[0.63, 0.27, 1.53]}
+            rotation={[0, 1.19, Math.PI / 2]}
+            scale={[0.76, 0.1, 0.76]}
+          >
+            <mesh
+              name="Cylinder012"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012.geometry}
+              material={materials["tvBody.002"]}
+            />
+            <mesh
+              name="Cylinder012_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012_1.geometry}
+              material={materials["tvFrame.002"]}
+            />
+          </group>
+          <group
+            name="Cursor2002"
+            position={[0.62, 0.67, 1.52]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+            scale={[0.76, 0.1, 0.76]}
+          >
+            <mesh
+              name="Cylinder012"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012.geometry}
+              material={materials["tvBody.002"]}
+            />
+            <mesh
+              name="Cylinder012_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012_1.geometry}
+              material={materials["tvFrame.002"]}
+            />
+          </group>
+          <mesh
+            name="Power002"
+            castShadow
+            receiveShadow
+            geometry={nodes.Power002.geometry}
+            material={materials["tvFrame.002"]}
+            position={[0.89, -0.01, 1.6]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+          />
+          <mesh
+            name="Screen002"
+            castShadow
+            receiveShadow
+            geometry={nodes.Screen002.geometry}
+            // material={materials["tvScreen.002"]}
+            position={[0.03, 0, 0.19]}
+            scale={[1.5, 1, 1]}
+          >
+            <meshBasicMaterial toneMapped={false}>
+              <videoTexture
+                attach={"map"}
+                args={[videoTwo]}
+                encoding={THREE.sRGBEncoding}
+                rotation={-1.5708}
+                repeat={[-2.5, 2.5]}
+                offset={[1.025, -0]}
+                center={[0.5, 0.5]}
+              />
+            </meshBasicMaterial>
+          </mesh>
+          <mesh
+            name="Signature002"
+            castShadow
+            receiveShadow
+            geometry={nodes.Signature002.geometry}
+            material={materials["mainBrand.001"]}
+            position={[0.84, 1, 1.49]}
+          />
+          {!props.isMobile && (
+            <Tooltip
+              text="Development"
+              video={2}
+              targetLocation={[0.03, 0, 0.19]}
+              onClick={() => {
+                var getUrl = window.location;
+                var baseUrl =
+                  getUrl.protocol +
+                  "//" +
+                  getUrl.host +
+                  "/" +
+                  getUrl.pathname.split("/")[1];
+
+                moveCamera({
+                  location: () => {
+                    window.location.href = baseUrl + "development/";
+                  },
+                  targetLocation: [5.79, 0, 0.25],
+                  rotation: null,
+                });
+              }}
+            />
+          )}
+        </group>
+        <group
+          name="TV002"
+          position={!props.isMobile ? [-6.42, 0, 1.08] : objects[2].position}
+          rotation={
+            !props.isMobile ? [0, 0.49, 0] : [0, degreesToRadians(205), 0]
+          }
+        >
+          <group name="Antenne003" position={[1.06, 1.01, -0.78]}>
+            <mesh
+              name="Cylinder013"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder013.geometry}
+              material={materials["tvFrame.002"]}
+            />
+            <mesh
+              name="Cylinder013_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder013_1.geometry}
+              material={materials["tvBody.002"]}
+            />
+          </group>
+          <group name="Body003" position={[0, 0, 0.11]} scale={[1.5, 1, 1]}>
+            <mesh
+              name="Cube005"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005.geometry}
+              material={materials["tvBody.003"]}
+            />
+            <mesh
+              name="Cube005_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_1.geometry}
+              material={materials["tvFrame.003"]}
+            />
+            <mesh
+              name="Cube005_2"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_2.geometry}
+              material={materials["tvScreenFrame.003"]}
+            />
+            <mesh
+              name="Cube005_3"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_3.geometry}
+              material={nodes.Cube005_3.material}
+            />
+          </group>
+          <group
+            name="Cursor003"
+            position={[1.41, 0.27, 0.51]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+            scale={[0.76, 0.1, 0.76]}
+          >
+            <mesh
+              name="Cylinder012"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012.geometry}
+              material={materials["tvBody.002"]}
+            />
+            <mesh
+              name="Cylinder012_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012_1.geometry}
+              material={materials["tvFrame.002"]}
+            />
+          </group>
+          <group
+            name="Cursor2003"
+            position={[1.41, 0.67, 0.51]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+            scale={[0.76, 0.1, 0.76]}
+          >
+            <mesh
+              name="Cylinder012"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012.geometry}
+              material={materials["tvBody.002"]}
+            />
+            <mesh
+              name="Cylinder012_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cylinder012_1.geometry}
+              material={materials["tvFrame.002"]}
+            />
+          </group>
+          <mesh
+            name="Power003"
+            castShadow
+            receiveShadow
+            geometry={nodes.Power003.geometry}
+            material={materials["tvFrame.002"]}
+            position={[1.64, -0.01, 0.35]}
+            rotation={[Math.PI / 2, Math.PI / 2, 0]}
+          />
+          <mesh
+            name="Screen003"
+            castShadow
+            receiveShadow
+            geometry={nodes.Screen003.geometry}
+            // material={materials["tvScreen.002"]}
+            position={[0, 0, 0.11]}
+            scale={[1.5, 1, 1]}
+          >
+            <meshBasicMaterial toneMapped={false}>
+              <videoTexture
+                attach={"map"}
+                args={[videoThree]}
+                encoding={THREE.sRGBEncoding}
+                rotation={-1.5708}
+                repeat={[-2.5, 2.5]}
+                offset={[1.025, -0]}
+                center={[0.5, 0.5]}
+              />
+            </meshBasicMaterial>
+          </mesh>
+          <mesh
+            name="Signature003"
+            castShadow
+            receiveShadow
+            geometry={nodes.Signature003.geometry}
+            material={materials["mainBrand.001"]}
+            position={[1.52, 1, 0.32]}
+          />
+          {!props.isMobile && (
+            <Tooltip
+              text="Design"
+              video={3}
+              targetLocation={[0, 0, 0.11]}
+              onClick={() => {
+                var getUrl = window.location;
+                var baseUrl =
+                  getUrl.protocol +
+                  "//" +
+                  getUrl.host +
+                  "/" +
+                  getUrl.pathname.split("/")[1];
+
+                moveCamera({
+                  location: () => {
+                    window.location.href = baseUrl + "design/";
+                  },
+                  targetLocation: [-6.42, 0, 1.08],
+                  rotation: null,
+                });
+              }}
+            />
+          )}
+        </group>
       </group>
+
       <mesh
         name="RoomScreen"
         castShadow
@@ -650,6 +681,7 @@ const BlenderScene = (props) => {
         position={[0.06, 6.19, -18.31]}
         rotation={[-Math.PI / 2, -Math.PI / 2, 0]}
         ref={videoScreen}
+        scale={props.isMobile ? 0.5 : 1}
       >
         {roomVideo != 0 && (
           <meshBasicMaterial toneMapped={false}>
@@ -663,7 +695,7 @@ const BlenderScene = (props) => {
                 ]}
                 encoding={THREE.sRGBEncoding}
                 rotation={-1.5708}
-                repeat={[-3.5, 2.5 ]}
+                repeat={[-3.5, 2.5]}
                 offset={[0.45, 0.625]}
                 center={[0.5, 0.5]}
               />
@@ -692,24 +724,26 @@ const getAspect = () => {
   return window.innerWidth / window.innerHeight;
 };
 
-const mouseAnimation = (object) => {
-  let width = window.innerWidth;
-  let height = window.innerHeight;
+const mouseAnimation = (object, isMobile) => {
   document.addEventListener("mousemove", (event) => {
-    object.current.position.x =
-      0 +
-      (event.clientX > window.innerWidth / 2
-        ? (event.clientX - window.innerWidth / 2) * 0.002
-        : -(window.innerWidth / 2 - event.clientX) * 0.002);
-    object.current.position.y =
-      10 +
-      (event.clientY > window.innerWidth / 2
-        ? (event.clientY - window.innerWidth / 2) * 0.001
-        : -(window.innerWidth / 2 - event.clientY) * 0.001);
+    console.log(isMobile);
+    if (window.innerWidth > 425) {
+      object.current.position.x =
+        0 +
+        (event.clientX > window.innerWidth / 2
+          ? (event.clientX - window.innerWidth / 2) * 0.002
+          : -(window.innerWidth / 2 - event.clientX) * 0.002);
+      object.current.position.y =
+        10 +
+        (event.clientY > window.innerWidth / 2
+          ? (event.clientY - window.innerWidth / 2) * 0.001
+          : -(window.innerWidth / 2 - event.clientY) * 0.001);
+    }
   });
 };
 
 const Scene = () => {
+  const isMobile = useMediaQuery("(max-width: 425px)");
   const [cameraAspect, setCameraAspect] = React.useState(16 / 9);
   const camera = React.useRef();
   useEffect(() => {
@@ -719,7 +753,7 @@ const Scene = () => {
       setCameraAspect(getAspect());
     };
 
-    mouseAnimation(camera);
+    mouseAnimation(camera, isMobile);
 
     eventBus.on("animCamera", (data) => {
       data(camera.current);
@@ -730,18 +764,18 @@ const Scene = () => {
 
   return (
     <>
-        <Canvas camera={{ position: [0, 2.5, 15] }} id="webGlWrapper">
-          <PerspectiveCamera
-            ref={camera}
-            makeDefault
-            manual
-            position={[0, 10, 40]}
-            aspect={cameraAspect}
-          />
-          <ambientLight />
-          <pointLight position={[0, 10, 10]} />
-          <BlenderScene />
-        </Canvas>
+      <Canvas camera={{ position: [0, 2.5, 0] }} id="webGlWrapper">
+        <PerspectiveCamera
+          ref={camera}
+          makeDefault
+          manual
+          position={!isMobile ? [0, 10, 40] : [0, 0, 25]}
+          aspect={cameraAspect}
+        />
+        <ambientLight color={"0x404040"} intensity={16} />
+        <pointLight position={[0, 10, 10]} />
+        <BlenderScene isMobile={isMobile} />
+      </Canvas>
     </>
   );
 };
