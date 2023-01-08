@@ -7,9 +7,9 @@
 	onMount(()=>{
 		let tl = gsap.timeline()
 		tl.fromTo('h1 .word', { opacity:0, y: 20 }, {y: 0, opacity: 1, duration: 0.8, stagger: 0.2})
-		tl.fromTo('#list-links .word', { opacity:0, y: 20 }, {y: 0, opacity: 1, duration: 0.8, stagger: 0.2})
+		tl.fromTo('#list-links .word', { opacity:0, y: 20 }, {y: 0, opacity: 1, duration: 0.8, stagger: 0.2}, '<')
 		tl.fromTo('#list-links p', {opacity:0}, {opacity: 1})
-		tl.fromTo('.right', {opacity: 0, y:5}, {opacity:1, y:0})
+		tl.fromTo('.right', {opacity: 0, y:5}, {opacity:1, y:0}, "<")
 	})
 
 	export let posts;

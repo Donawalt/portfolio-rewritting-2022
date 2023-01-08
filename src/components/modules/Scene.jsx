@@ -282,7 +282,8 @@ const BlenderScene = (props) => {
               args={[videoOne]}
               encoding={THREE.sRGBEncoding}
               rotation={-1.5708}
-              repeat={[1, 1]}
+              repeat={[-2.5, 2.5]}
+              offset={[1.025, -0]}
               center={[0.5, 0.5]}
             />
           </meshBasicMaterial>
@@ -441,7 +442,8 @@ const BlenderScene = (props) => {
               args={[videoTwo]}
               encoding={THREE.sRGBEncoding}
               rotation={-1.5708}
-              repeat={[1, 1]}
+              repeat={[-2.5, 2.5]}
+              offset={[1.025, -0]}
               center={[0.5, 0.5]}
             />
           </meshBasicMaterial>
@@ -601,7 +603,8 @@ const BlenderScene = (props) => {
               args={[videoThree]}
               encoding={THREE.sRGBEncoding}
               rotation={-1.5708}
-              repeat={[1, 1]}
+              repeat={[-2.5, 2.5]}
+              offset={[1.025, -0]}
               center={[0.5, 0.5]}
             />
           </meshBasicMaterial>
@@ -660,7 +663,8 @@ const BlenderScene = (props) => {
                 ]}
                 encoding={THREE.sRGBEncoding}
                 rotation={-1.5708}
-                repeat={[2, 1]}
+                repeat={[-3.5, 2.5 ]}
+                offset={[0.45, 0.625]}
                 center={[0.5, 0.5]}
               />
             )}
@@ -676,7 +680,7 @@ const BlenderScene = (props) => {
         receiveShadow
         geometry={nodes.Plane.geometry}
         position={[0, -1.18, 0]}
-        scale={9.93}
+        scale={100}
       >
         <meshBasicMaterial attach="material" color="black" />
       </mesh>

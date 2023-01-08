@@ -56,7 +56,7 @@
             },
           }
         );
-        tl.fromTo('.information', {opacity: 0}, {opacity: 1});
+        tl.fromTo('.information, article', {opacity: 0}, {opacity: 1});
       });
     }, 1);
   }
