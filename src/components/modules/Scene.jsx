@@ -142,6 +142,8 @@ const BlenderScene = (props) => {
 
   const [roomVideo, setRoomVideo] = React.useState(0);
 
+  const [basePlatform, setBasePlatform] = React.useState(-85);
+
   // Mobile part
   const objects = [{}, {}, {}];
   const radius = 10;
@@ -162,7 +164,6 @@ const BlenderScene = (props) => {
 
   React.useEffect(() => {
     eventBus.on("uRoomVideo", (data) => {
-      console.log(data);
       setRoomVideo(data);
     });
   }, []);
@@ -174,6 +175,41 @@ const BlenderScene = (props) => {
       setRoomVideo(0);
     }
   }, [props.isMobile]);
+
+  React.useEffect(()=>{
+    eventBus.on("slide-left", () => {
+      setBasePlatform(value => {
+        return value + 120
+      });
+      setRoomVideo(value => {
+        if(value === 3){
+          return 1
+        } 
+        return value + 1;
+      });
+      setRoomVideo(value => {
+        console.log(value)
+        return value ;
+      });
+    });
+
+    eventBus.on("slide-right", () => {
+      setBasePlatform(value => {
+        return value - 120
+      });
+      setRoomVideo(value => {
+        if(value === 1){
+          return 3
+        } 
+        return value - 1;
+      });
+
+      setRoomVideo(value => {
+        console.log(value)
+        return value ;
+      });
+    });
+  }, [])
 
   const moveCamera = ({ location, targetLocation, rotation }) => {
     const animation = (camera) => {
@@ -195,7 +231,9 @@ const BlenderScene = (props) => {
   return (
     <group {...props} dispose={null}>
       <group
-        rotation={!props.isMobile ? [0, 0, 0] : [0, degreesToRadians(-85), 0]}
+        rotation={
+          !props.isMobile ? [0, 0, 0] : [0, degreesToRadians(basePlatform), 0]
+        }
         position={!props.isMobile ? [0, 0, 0] : [-0.8, 0, 0]}
       >
         <group
@@ -746,6 +784,66 @@ const Scene = () => {
   const isMobile = useMediaQuery("(max-width: 425px)");
   const [cameraAspect, setCameraAspect] = React.useState(16 / 9);
   const camera = React.useRef();
+  const track = React.useRef();
+
+  // drag stuffs
+  const [navigable, setNavigable] = React.useState(false);
+  const [dragStart, setDragStart] = React.useState();
+  const [isDrag, setIsDrag] = React.useState(false);
+  const [dragActivity, setDragActivity] = React.useState();
+
+  const startDrag = (el, event) => {
+    // Get the drag start value
+    setDragStart(event.clientX);
+    // Set isDrag to true for initialisation
+    setIsDrag(true);
+  };
+
+  const onDrag = (el, event) => {
+    if (isDrag && event) {
+      setDragActivity(event.clientX);
+      eventBus.dispatch("slide-position", {
+        position: dragStart - event.clientX,
+      });
+    }
+  };
+
+  const endDrag = (el, event) => {
+    if (dragStart - dragActivity > 70) {
+      // go to left
+      eventBus.dispatch("slide-left");
+    } else if (dragStart - dragActivity < -70) {
+      // go to right
+      eventBus.dispatch("slide-right");
+    }
+
+    setIsDrag(false);
+  };
+
+  const handleDrag = (event, step) => {
+    if (navigable != "blocked") {
+      let trackDOM = track.current;
+      if (!event.touches && typeof event.stopPropagation === "function") {
+        event.stopPropagation();
+      }
+      event = event.touches ? event.touches[0] : event;
+      switch (step) {
+        case "start":
+          startDrag(trackDOM, event);
+          break;
+        case "on":
+          onDrag(trackDOM, event);
+          break;
+        case "end":
+          endDrag(trackDOM, event);
+          break;
+        default:
+          startDrag(trackDOM, event);
+          break;
+      }
+    }
+  };
+
   useEffect(() => {
     console.log(getAspect());
     setCameraAspect(getAspect());
@@ -762,9 +860,38 @@ const Scene = () => {
     animateTitle();
   }, []);
 
+  useEffect(() => {
+    console.log("Current drag start", dragStart - dragActivity);
+  }, [dragActivity]);
+
   return (
     <>
-      <Canvas camera={{ position: [0, 2.5, 0] }} id="webGlWrapper">
+      <Canvas
+        camera={{ position: [0, 2.5, 0] }}
+        id="webGlWrapper"
+        ref={track}
+        onDragStart={(e) => {
+          handleDrag(e, "start");
+        }}
+        onTouchStart={(e) => {
+          handleDrag(e, "start");
+        }}
+        onMouseDown={(e) => {
+          handleDrag(e, "start");
+        }}
+        onTouchMove={(e) => {
+          handleDrag(e, "on");
+        }}
+        onMouseMoveCapture={(e) => {
+          handleDrag(e, "on");
+        }}
+        onMouseUp={(e) => {
+          handleDrag(e, "end");
+        }}
+        onTouchEnd={(e) => {
+          handleDrag(e, "end");
+        }}
+      >
         <PerspectiveCamera
           ref={camera}
           makeDefault
